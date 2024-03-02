@@ -14,6 +14,10 @@ import random
 import pygame;
 import pygame_widgets;
 from pygame_widgets.button import Button;
+import debugpy
+
+debugpy.listen(5678)
+debugpy.wait_for_client() 
 
 path_graficos="img/"
 path_rosco_azul="img/rosco_azul/"
@@ -28,22 +32,35 @@ puntos=0
 began=False
 ended=False
 
-def leerArchivosEnCarpeta(path):
-    listaArchivos = os.listdir(path)
-    return listaArchivos
+def leer_archivos_en_carpeta(path):
+    lista_archivos = os.listdir(path)
+    breakpoint()
+    return lista_archivos
 
-def elegirCancion(lista):
-    numeroCancion=random.randint(0,len(lista)-1)
-    return lista[numeroCancion]
+def elegir_cancion(lista):
+    numero_cancion=random.randint(0,len(lista)-1)
+    return lista[numero_cancion]
 
-def playASong(path):
+def play_song(path):
     pygame.mixer.music.unload()
     print(path)
-    listaCanciones = leerArchivosEnCarpeta(path)
-    cancion=os. path.join(path,elegirCancion(listaCanciones))
+    lista_canciones = leer_archivos_en_carpeta(path)
+    cancion=os. path.join(path,elegir_cancion(lista_canciones))
     print(cancion)
     pygame.mixer.music.load(cancion)
+    breakpoint()
     pygame.mixer.music.play()
+
+def detect_quit_events(events):
+    running=True
+    for event in events:
+        if event.type == pygame.QUIT:
+            running=False
+        if event.type == pygame.KEYDOWN:
+            keys=pygame.key.get_pressed()
+            if keys[pygame.K_SPACE]:
+                running = False
+    return running
 
 
 # define a main function
@@ -64,23 +81,16 @@ def main():
     screen.fill((0,0,0))  
     screen.blit(bg,(0,0))
     pygame.display.flip()
-    buttonWin = Button(screen, 20, 568, 300, 70, text='Random Win Melody', inactiveColour=(200, 50, 0), activeColour=(0,50,200), pressedColour=(0, 200, 20), radius=20, onClick=lambda:playASong(path_sonido_win))
-    buttonFail = Button(screen, 330, 568, 300, 70, text='Random Fail Melody', inactiveColour=(200, 50, 0), activeColour=(0,50,200), pressedColour=(0, 200, 20), radius=20, onClick=lambda:playASong(path_sonido_fail))
-    buttonNext = Button(screen, 650, 568, 300, 70, text='Random Next Melody', inactiveColour=(200, 50, 0), activeColour=(0,50,200), pressedColour=(0, 200, 20), radius=20, onClick=lambda:playASong(path_sonido_next))
+    breakpoint()
+    buttonwin = Button(screen, 20, 568, 300, 70, text='Random Win Melody', inactiveColour=(200, 50, 0), activeColour=(0,50,200), pressedColour=(0, 200, 20), radius=20, onClick=lambda:play_song(path_sonido_win))
+    button_fail = Button(screen, 330, 568, 300, 70, text='Random Fail Melody', inactiveColour=(200, 50, 0), activeColour=(0,50,200), pressedColour=(0, 200, 20), radius=20, onClick=lambda:play_song(path_sonido_fail))
+    button_next = Button(screen, 650, 568, 300, 70, text='Random Next Melody', inactiveColour=(200, 50, 0), activeColour=(0,50,200), pressedColour=(0, 200, 20), radius=20, onClick=lambda:play_song(path_sonido_next))
     # define a variable to control the main loop
     running = True
     # main loop
     while running:
         events = pygame.event.get()
-        for event in events:
-            if event.type == pygame.QUIT:
-                running=False
-            if event.type == pygame.KEYDOWN:
-                keys=pygame.key.get_pressed()
-                if keys[pygame.K_SPACE]:
-                    running = False
-                if keys[pygame.K_LALT]:
-                    pygame.display.toggle_fullscreen()
+        running = detect_quit_events(events)
         screen.fill((0,0,0))
         screen.blit(bg,(0,0))
         pygame_widgets.update(events)
